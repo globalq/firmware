@@ -107,6 +107,16 @@
 #if defined(HAS_HARDWARE_WATCHDOG)
 #include "watchdog/watchdogThread.h"
 #endif
+
+// EV-monitor project additions - included only when an ev-monitor env defines the flag.
+#if MESHTASTIC_EV_MONITOR_GARAGE
+#include "modules/ThermalManager.h"
+#include "modules/VisionAIModule.h"
+#endif
+#if MESHTASTIC_EV_MONITOR_HOME
+#include "modules/TelegramModule.h"
+#endif
+
 /**
  * Create module instances here.  If you are adding a new module, you must 'new' it here (or somewhere else)
  */
@@ -260,6 +270,17 @@ void setupModules()
 #if defined(HAS_HARDWARE_WATCHDOG)
     watchdogThread = new WatchdogThread();
 #endif
+
+    // EV-monitor project modules. ThermalManager is constructed before
+    // VisionAIModule so the latter's getPollIntervalMs() lookup is valid.
+#if MESHTASTIC_EV_MONITOR_GARAGE
+    thermalManager = new ThermalManager();
+    visionAIModule = new VisionAIModule();
+#endif
+#if MESHTASTIC_EV_MONITOR_HOME
+    telegramModule = new TelegramModule();
+#endif
+
     // NOTE! This module must be added LAST because it likes to check for replies from other modules and avoid sending extra
     // acks
     routingModule = new RoutingModule();
